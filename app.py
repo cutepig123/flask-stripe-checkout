@@ -46,16 +46,15 @@ def create_checkout_session():
 
         # ?session_id={CHECKOUT_SESSION_ID} means the redirect will have the session ID set as a query param
         checkout_session = stripe.checkout.Session.create(
+            client_reference_id = 'client_reference_id_1',
             success_url=domain_url + "success?session_id={CHECKOUT_SESSION_ID}",
             cancel_url=domain_url + "cancelled",
-            payment_method_types=["card"],
+            #payment_method_types=["card"],
             mode="payment",
             line_items=[
                 {
-                    "name": "T-shirt",
-                    "quantity": 1,
-                    "currency": "usd",
-                    "amount": "2000",
+                    "price": "price_1OSM1OGrZaHwIy7swLAU3d5O",
+                    "quantity":1,
                 }
             ]
         )
@@ -98,7 +97,9 @@ def handle_checkout_session(session):
 
 @app.route("/success")
 def success():
-    return render_template("success.html")
+    session_id = request.args.get('session_id')
+    session = stripe.checkout.Session.retrieve(session_id)
+    return jsonify({"sessionId": session_id}, {'session':session})
 
 
 @app.route("/cancelled")
